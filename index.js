@@ -15,6 +15,7 @@ const run = async () => {
     try {
         await client.connect()
         const partsCollection = client.db(`dronemanufacture`).collection('parts');
+        const partsOrders = client.db(`dronemanufacture`).collection('orders');
 
         //Load all parts
         app.get('/parts', async (req, res) => {
@@ -30,7 +31,18 @@ const run = async () => {
             const part = await partsCollection.findOne(query)
             res.send(part);
         })
-
+        //Insert new order
+        app.post('/orders', async (req, res) => {
+            const product = req.body;
+            const result = await partsOrders.insertOne(product);
+            res.send(result)
+        })
+        //Load all order
+        app.get('/orders', async (req, res) => {
+            const doc = {};
+            const result = await partsOrders.find(doc).toArray();
+            res.send(result)
+        })
     }
     finally {
 
