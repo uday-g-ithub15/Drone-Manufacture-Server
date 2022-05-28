@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -58,6 +58,13 @@ const run = async () => {
             }
             const result = await partsCollection.updateOne(query, updateDoc)
             res.send(result)
+        })
+        //Delete an item
+        app.delete('/parts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await partsOrders.deleteOne(query);
+            res.send(result);
         })
 
     }
