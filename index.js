@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require('mongodb');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -41,6 +41,21 @@ const run = async () => {
         app.get('/orders', async (req, res) => {
             const doc = {};
             const result = await partsOrders.find(doc).toArray();
+            res.send(result)
+        })
+
+        //Update stock quantity
+        app.put('/parts/:id', async (req, res) => {
+            const id = req.params.id;
+            const stock = req.body.newStock;
+            const quantity = req.body.userQuantity;
+            const available = stock - quantity;
+            console.log(stock, quantity, (stock - quantity));
+            const query = { _id: ObjectId(id) }
+            const updateDoc = {
+                $set: { available }
+            }
+            const result = await partsCollection.updateOne(query, updateDoc)
             res.send(result)
         })
     }
