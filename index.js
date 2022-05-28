@@ -39,8 +39,9 @@ const run = async () => {
         })
         //Load all order
         app.get('/orders', async (req, res) => {
-            const doc = {};
-            const result = await partsOrders.find(doc).toArray();
+            const email = req.query.email;
+            const query = { email }
+            const result = await partsOrders.find(query).toArray();
             res.send(result)
         })
 
@@ -58,6 +59,7 @@ const run = async () => {
             const result = await partsCollection.updateOne(query, updateDoc)
             res.send(result)
         })
+
     }
     finally {
 
