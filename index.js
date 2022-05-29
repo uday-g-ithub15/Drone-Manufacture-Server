@@ -6,7 +6,7 @@ const cors = require('cors');
 app.use(cors())
 app.use(express.json())
 require('dotenv').config()
-
+const jwt = require('jsonwebtoken')
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jb74a.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -16,6 +16,7 @@ const run = async () => {
         await client.connect()
         const partsCollection = client.db(`dronemanufacture`).collection('parts');
         const partsOrders = client.db(`dronemanufacture`).collection('orders');
+        const userCollection = client.db(`dronemanufacture`).collection('users');
 
         //Load all parts
         app.get('/parts', async (req, res) => {
@@ -65,6 +66,21 @@ const run = async () => {
             const query = { _id: ObjectId(id) };
             const result = await partsOrders.deleteOne(query);
             res.send(result);
+        })
+        //Store user
+        app.put('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const userInfo = req.body;
+            const filter = { email }
+            const options = { upsert: true }
+            const updateDoc = {
+                $set:
+                    userInfo
+
+            }
+            const result = await userCollection.updateOne(filter, updateDoc, options)
+            const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '10hr' })
+            res.send({ result, token })
         })
 
     }
