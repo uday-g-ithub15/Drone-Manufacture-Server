@@ -11,6 +11,21 @@ const jwt = require('jsonwebtoken')
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jb74a.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+const verifyJwt = (req, res, next) => {
+    const auth = req.headers.authorization;
+    if (!auth) {
+        return res.status(401).send({ message: 'unauthorized' })
+    }
+    const token = auth.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: 'forbidden' })
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
+
 const run = async () => {
     try {
         await client.connect()
@@ -39,11 +54,17 @@ const run = async () => {
             res.send(result)
         })
         //Load all order
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            const query = { email }
-            const result = await partsOrders.find(query).toArray();
-            res.send(result)
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email }
+                const result = await partsOrders.find(query).toArray();
+                return res.send(result)
+            }
+            else {
+                return res.status(403).send({ message: 'Forbidden' })
+            }
         })
 
         //Update stock quantity
@@ -52,7 +73,6 @@ const run = async () => {
             const stock = req.body.newStock;
             const quantity = req.body.userQuantity;
             const available = stock - quantity;
-            console.log(stock, quantity, (stock - quantity));
             const query = { _id: ObjectId(id) }
             const updateDoc = {
                 $set: { available }
