@@ -102,6 +102,37 @@ const run = async () => {
             const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '10hr' })
             res.send({ result, token })
         })
+        //Load all users
+        app.get('/users', verifyJwt, async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users)
+        })
+        //Make admin
+        app.put('/users/admin/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
+            const decodedEmail = req?.decoded?.email;
+            const requester = await userCollection.findOne({ email: decodedEmail })
+            if (requester.userRole === 'ADMIN') {
+                const filter = { email }
+                const updateDoc = {
+                    $set:
+                        { userRole: 'ADMIN' }
+
+                }
+                const result = await userCollection.updateOne(filter, updateDoc)
+                res.send(result)
+            }
+            else {
+                return res.status(403).send({ message: 'Forbidden' })
+            }
+        })
+        //Checking an user is admin or not
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email })
+            const isAdmin = user.userRole === 'ADMIN';
+            res.send({ ADMIN: isAdmin })
+        })
 
     }
     finally {
