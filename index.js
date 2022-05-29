@@ -133,6 +133,13 @@ const run = async () => {
             const isAdmin = user.userRole === 'ADMIN';
             res.send({ ADMIN: isAdmin })
         })
+        //Add new products
+        app.post('/parts', async (req, res) => {
+            const part = req.body;
+            const result = await partsCollection.insertOne(part)
+            res.send(result)
+            console.log(doc);
+        })
 
     }
     finally {
