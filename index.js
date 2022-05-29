@@ -53,10 +53,11 @@ const run = async () => {
             const result = await partsOrders.insertOne(product);
             res.send(result)
         })
-        //Load all order
+        //Load specific order
         app.get('/orders', verifyJwt, async (req, res) => {
             const email = req.query.email;
             const decodedEmail = req.decoded.email;
+            console.log(email, decodedEmail);
             if (email === decodedEmail) {
                 const query = { email }
                 const result = await partsOrders.find(query).toArray();
@@ -139,6 +140,13 @@ const run = async () => {
             const result = await partsCollection.insertOne(part)
             res.send(result)
             console.log(doc);
+        })
+        //Delete Product
+        app.delete('/part/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = partsCollection.deleteOne(query)
+            res.send(result)
         })
 
     }
