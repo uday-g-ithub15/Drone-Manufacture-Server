@@ -53,9 +53,15 @@ const run = async () => {
             const result = await partsOrders.insertOne(product);
             res.send(result)
         })
+        //Load all orders
+        app.get('/orders', async (req, res) => {
+            const query = {}
+            const result = await partsOrders.find(query).toArray();
+            res.send(result)
+        })
         //Load specific order
-        app.get('/orders', verifyJwt, async (req, res) => {
-            const email = req.query.email;
+        app.get('/orders/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
             const decodedEmail = req.decoded.email;
             console.log(email, decodedEmail);
             if (email === decodedEmail) {
@@ -97,7 +103,6 @@ const run = async () => {
             const updateDoc = {
                 $set:
                     userInfo
-
             }
             const result = await userCollection.updateOne(filter, updateDoc, options)
             const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '10hr' })
