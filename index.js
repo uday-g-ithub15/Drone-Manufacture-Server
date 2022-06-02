@@ -94,7 +94,7 @@ const run = async () => {
             const result = await partsOrders.deleteOne(query);
             res.send(result);
         })
-        //Store user
+        //Store user 
         app.put('/users/:email', async (req, res) => {
             const email = req.params.email;
             const userInfo = req.body;
@@ -161,6 +161,7 @@ const run = async () => {
 }
 run().catch(console.dir)
 
+//Initial
 app.get('/', async (req, res) => {
     res.send('Welcome')
 })
