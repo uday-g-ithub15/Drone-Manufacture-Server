@@ -144,7 +144,6 @@ const run = async () => {
             const part = req.body;
             const result = await partsCollection.insertOne(part)
             res.send(result)
-            console.log(doc);
         })
         //Delete Product
         app.delete('/part/:id', async (req, res) => {
