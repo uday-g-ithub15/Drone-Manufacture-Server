@@ -8,7 +8,7 @@ app.use(express.json())
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jb74a.mongodb.net/?retryWrites=true&w=majority`;
+const uri = process.env.DB_URL
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 const verifyJwt = (req, res, next) => {
